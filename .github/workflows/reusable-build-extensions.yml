@@ -23,11 +23,13 @@ jobs:
   #   wasi_nn:
   #     - paths/to/wasi_nn
   #     - other/paths/to/wasi_nn
+  #   wasi_nn-ggml:
+  #     - paths/to/wasi_nn-ggml
   #
   # plugin: 'wasi_nn-ggml'
   #
-  #   process.env['wasi_nn'] => true
-  #   process.env['wasi_nn-ggml'] => undefined
+  #   process.env['wasi_nn'] => 'true' if the umbrella filter matched
+  #   process.env['wasi_nn-ggml'] => 'true' if the exact-name filter matched
   # ------------------------------------------------------------------#
   prepare:
     name: Prepare ${{ inputs.asset_tag }}
@@ -43,7 +45,7 @@ jobs:
       ubuntu_latest: ${{ steps.readfile.outputs.ubuntu_latest }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: audit
 
@@ -91,11 +93,21 @@ jobs:
         env:
           wasi_crypto: ${{ steps.filter.outputs.wasi_crypto }}
           wasi_nn: ${{ steps.filter.outputs.wasi_nn }}
+          wasi_nn-bitnet-arm-tl1: ${{ steps.filter.outputs['wasi_nn-bitnet-arm-tl1'] }}
+          wasi_nn-bitnet-x86-tl2: ${{ steps.filter.outputs['wasi_nn-bitnet-x86-tl2'] }}
+          wasi_nn-chattts: ${{ steps.filter.outputs['wasi_nn-chattts'] }}
+          wasi_nn-ggml: ${{ steps.filter.outputs['wasi_nn-ggml'] }}
+          wasi_nn-mlx: ${{ steps.filter.outputs['wasi_nn-mlx'] }}
+          wasi_nn-openvino: ${{ steps.filter.outputs['wasi_nn-openvino'] }}
+          wasi_nn-openvino-genai: ${{ steps.filter.outputs['wasi_nn-openvino-genai'] }}
+          wasi_nn-piper: ${{ steps.filter.outputs['wasi_nn-piper'] }}
+          wasi_nn-pytorch: ${{ steps.filter.outputs['wasi_nn-pytorch'] }}
+          wasi_nn-tensorflowlite: ${{ steps.filter.outputs['wasi_nn-tensorflowlite'] }}
+          wasi_nn-whisper: ${{ steps.filter.outputs['wasi_nn-whisper'] }}
           wasm_bpf: ${{ steps.filter.outputs.wasm_bpf }}
           wasmedge_ffmpeg: ${{ steps.filter.outputs.wasmedge_ffmpeg }}
           wasmedge_image: ${{ steps.filter.outputs.wasmedge_image }}
           wasmedge_opencvmini: ${{ steps.filter.outputs.wasmedge_opencvmini }}
-          wasmedge_process: ${{ steps.filter.outputs.wasmedge_process }}
           wasmedge_stablediffusion: ${{ steps.filter.outputs.wasmedge_stablediffusion }}
           wasmedge_tensorflow: ${{ steps.filter.outputs.wasmedge_tensorflow }}
           wasmedge_tensorflowlite: ${{ steps.filter.outputs.wasmedge_tensorflowlite }}
@@ -180,8 +192,8 @@ jobs:
           - runner: 'macos-15-intel'
             asset_tag: 'darwin_24-x86_64'
             plugins: ${{ needs.prepare.outputs.macos_x86_64 }}
-          - runner: 'macos-14'
-            asset_tag: 'darwin_23-arm64'
+          - runner: 'macos-15'
+            asset_tag: 'darwin_24-arm64'
             plugins: ${{ needs.prepare.outputs.macos_arm64 }}
     name: ${{ matrix.asset_tag }}
     uses: ./.github/workflows/reusable-build-extensions-on-macos.yml
